@@ -1,0 +1,272 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// 1. Definição da Constante
+#define TAMANHO_ACERVO 20
+#define TAM_STRING 50
+
+// Variável para rastrear quantos livros estão realmente cadastrados
+int livrosCadastrados = 0;
+
+// 2. Definição da Estrutura (Struct)
+typedef struct {
+    int codigo;
+    char titulo[TAM_STRING];
+    char autor[30];
+    char area[30];
+    int ano;
+    char editora[30];
+} Livro;
+
+//Funções
+void limpar_buffer();
+void cadastrarLivros(Livro acervo[], int tamanhoMaximo);
+void imprimirLivros(const Livro acervo[]);
+void pesquisarLivro(const Livro acervo[], int codigoBusca);
+void ordenarLivros(Livro acervo[]);
+
+
+//FUNÇÕES AUXILIARES
+
+/**
+ * @brief Limpa o buffer de entrada (stdin).
+ * Essencial para remover o '\n' deixado por scanf para que o próximo fgets não o leia.
+ */
+void limpar_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+
+//DAS FUNÇÕES DE GERENCIAMENTO
+
+/**
+ * @brief Cadastra um novo livro no primeiro espaço disponível do acervo.
+ *
+ * @param acervo Vetor de structs Livro.
+ * @param tamanhoMaximo O tamanho máximo do acervo (TAMANHO_ACERVO).
+ */
+void cadastrarLivros(Livro acervo[], int tamanhoMaximo) {
+    if (livrosCadastrados >= tamanhoMaximo) {
+        printf("\nERRO: Acervo de livros lotado! Maximo de %d atingido.\n", tamanhoMaximo);
+        return;
+    }
+
+    printf("\n--- CADASTRO DE LIVRO %d ---\n", livrosCadastrados + 1);
+    Livro *novoLivro = &acervo[livrosCadastrados];
+
+    //Entrada de Código (Numérico)
+    printf("Codigo: ");
+    if (scanf("%d", &novoLivro->codigo) != 1) {
+        printf("Entrada invalida para codigo. Tente novamente.\n");
+        limpar_buffer();
+        return;
+    }
+    limpar_buffer();
+
+    // Entrada de Titulo (String)
+    printf("Titulo: ");
+    // Usa fgets para leitura segura de string, passando o tamanho maximo
+    fgets(novoLivro->titulo, sizeof(novoLivro->titulo), stdin);
+    // strcspn busca o primeiro '\n' e o substitui por '\0' (terminador de string)
+    novoLivro->titulo[strcspn(novoLivro->titulo, "\n")] = 0;
+
+    // Entrada de Autor (String)
+    printf("Autor: ");
+    fgets(novoLivro->autor, sizeof(novoLivro->autor), stdin);
+    novoLivro->autor[strcspn(novoLivro->autor, "\n")] = 0;
+
+    // Entrada de Area (String)
+    printf("Area: ");
+    fgets(novoLivro->area, sizeof(novoLivro->area), stdin);
+    novoLivro->area[strcspn(novoLivro->area, "\n")] = 0;
+
+    // Entrada de Ano (Numérico)
+    printf("Ano de publicacao: ");
+    if (scanf("%d", &novoLivro->ano) != 1) {
+        printf("Entrada invalida para ano. Tente novamente.\n");
+        limpar_buffer();
+        return;
+    }
+    limpar_buffer();
+
+    // Entrada de Editora (String)
+    printf("Editora: ");
+    fgets(novoLivro->editora, sizeof(novoLivro->editora), stdin);
+    novoLivro->editora[strcspn(novoLivro->editora, "\n")] = 0;
+
+    // Incrementa a contagem de livros cadastrados
+    livrosCadastrados++;
+    printf("\nLivro cadastrado com sucesso! Total: %d\n", livrosCadastrados);
+}
+
+/**
+ * @brief Imprime todos os livros atualmente cadastrados no acervo.
+ *
+ * @param acervo Vetor de structs Livro.
+ */
+void imprimirLivros(const Livro acervo[]) {
+    if (livrosCadastrados == 0) {
+        printf("\nAcervo vazio. Nenhum livro cadastrado para imprimir.\n");
+        return;
+    }
+
+    printf("\n--- RELATORIO COMPLETO DO ACERVO (%d livros) ---\n", livrosCadastrados);
+    for (int i = 0; i < livrosCadastrados; i++) {
+        printf("LIVRO #%d\n", i + 1);
+        printf("  Codigo: %d\n", acervo[i].codigo);
+        printf("  Titulo: %s\n", acervo[i].titulo);
+        printf("  Autor: %s\n", acervo[i].autor);
+        printf("  Area: %s\n", acervo[i].area);
+        printf("  Ano: %d\n", acervo[i].ano);
+        printf("  Editora: %s\n", acervo[i].editora);
+        printf("--------------------------------------------------\n");
+    }
+}
+
+/**
+ * @brief Pesquisa um livro pelo código e exibe suas informações.
+ *
+ * @param acervo Vetor de structs Livro.
+ * @param codigoBusca O código a ser procurado.
+ */
+void pesquisarLivro(const Livro acervo[], int codigoBusca) {
+    printf("\n--- PESQUISA POR CODIGO ---\n");
+    if (livrosCadastrados == 0) {
+        printf("Acervo vazio. Nao ha livros para pesquisar.\n");
+        return;
+    }
+
+    int encontrado = 0;
+    // Usa laço for/while para percorrer o vetor e encontrar o item (busca linear)
+    for (int i = 0; i < livrosCadastrados; i++) {
+        if (acervo[i].codigo == codigoBusca) {
+            printf("\nLIVRO ENCONTRADO!\n");
+            printf("  Codigo: %d\n", acervo[i].codigo);
+            printf("  Titulo: %s\n", acervo[i].titulo);
+            printf("  Autor: %s\n", acervo[i].autor);
+            printf("  Area: %s\n", acervo[i].area);
+            printf("  Ano: %d\n", acervo[i].ano);
+            printf("  Editora: %s\n", acervo[i].editora);
+            encontrado = 1;
+            break;
+        }
+    }
+
+    // Estrutura Condicional para exibir resultado
+    if (!encontrado) {
+        printf("Livro com codigo %d nao encontrado no acervo.\n", codigoBusca);
+    }
+}
+
+/**
+ * @brief Ordena o acervo de livros por ano de publicacao usando o algoritmo Bubble Sort.
+ *
+ * @param acervo Vetor de structs Livro.
+ */
+void ordenarLivros(Livro acervo[]) {
+    if (livrosCadastrados < 2) {
+        printf("\nSao necessarios pelo menos 2 livros para ordenar.\n");
+        return;
+    }
+
+    Livro temp; // Variavel temporaria para a troca (swap)
+    int trocado; // Flag para otimizar o Bubble Sort
+
+    printf("\n--- ORDENANDO LIVROS POR ANO (Bubble Sort) ---\n");
+
+    // Implementacao do Bubble Sort
+    // Laços de Repetição aninhados (for dentro de for)
+    for (int i = 0; i < livrosCadastrados - 1; i++) {
+        trocado = 0;
+        for (int j = 0; j < livrosCadastrados - i - 1; j++) {
+            // Estrutura Condicional: Se o ano atual for maior que o proximo, troca.
+            if (acervo[j].ano > acervo[j+1].ano) {
+                // Troca (Swap) de Structs
+                temp = acervo[j];
+                acervo[j] = acervo[j+1];
+                acervo[j+1] = temp;
+                trocado = 1;
+            }
+        }
+        // Otimizacao: se nao houve trocas em uma passagem, o array esta ordenado.
+        if (trocado == 0) break;
+    }
+
+    printf("Acervo ordenado com sucesso por ano de publicacao (do mais antigo para o mais novo).\n");
+}
+
+
+// --- FUNÇÃO PRINCIPAL (MAIN) ---
+
+int main() {
+    // 3. Declaracao do vetor de structs
+    Livro acervo[TAMANHO_ACERVO];
+    int opcao;
+    int codigoBusca;
+
+    // Estrutura de Repetição do-while para manter o menu ativo
+    do {
+        // 4. Desenho do Menu (Entrada e Saída de Dados)
+        printf("\n===================================\n");
+        printf(" SISTEMA DE GERENCIAMENTO DE LIVROS\n");
+        printf("===================================\n");
+        printf("1 - Cadastrar livros\n");
+        printf("2 - Imprimir todos os livros\n");
+        printf("3 - Pesquisar livro por codigo\n");
+        printf("4 - Ordenar livros por ano de publicacao\n");
+        printf("5 - Sair do programa\n");
+        printf("-----------------------------------\n");
+        printf("Escolha uma opcao: ");
+
+        if (scanf("%d", &opcao) != 1) {
+            printf("\nOpcao invalida. Digite apenas numeros.\n");
+            limpar_buffer();
+            opcao = 0;
+            continue;
+        }
+        limpar_buffer();
+
+        // Estrutura Condicional switch-case para chamada de funcao
+        switch (opcao) {
+
+            case 1:
+                // Chamada da Funcao Cadastrar (passando o acervo e o tamanho maximo)
+                cadastrarLivros(acervo, TAMANHO_ACERVO);
+                break;
+
+            case 2:
+                // Chamada da Funcao Imprimir
+                imprimirLivros(acervo);
+                break;
+
+            case 3:
+                printf("Digite o codigo do livro a pesquisar: ");
+                if (scanf("%d", &codigoBusca) != 1) {
+                    printf("Entrada invalida para codigo de busca.\n");
+                    limpar_buffer();
+                    break;
+                }
+                limpar_buffer();
+                // Chamada da Funcao Pesquisar
+                pesquisarLivro(acervo, codigoBusca);
+                break;
+
+            case 4:
+                // Chamada da Funcao Ordenar
+                ordenarLivros(acervo);
+                break;
+
+            case 5:
+                printf("\nEncerrando o programa... Obrigado!\n");
+                break;
+
+            default:
+                printf("\nOpcao invalida! Tente novamente.\n");
+        }
+
+    } while (opcao != 5);
+
+    return 0;
+}
